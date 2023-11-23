@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Displays {
 
-    private final String myMessage;
+    public String myMessage;
 
     //Inject environment variable into constructor:
     public Displays(@Value("${MY_MESSAGE:}") String myMessage) {
@@ -23,7 +23,7 @@ public class Displays {
         if (myMessage != null && !myMessage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(myMessage);
         } else {
-            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Sorry MY_MESSAGE env variable hasn't been set yet. Try again later");
+            ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Sorry MY_MESSAGE env variable hasn't been set yet. Try again later");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(error);
         }

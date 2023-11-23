@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 public class StringReverseService {
 
     public String reverseString(String input) {
+        if(input==null){
+            return null;
+        }
         char[] charsArray = input.toCharArray();
         int left = 0;
         int right = charsArray.length - 1;
