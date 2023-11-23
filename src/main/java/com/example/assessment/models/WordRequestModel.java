@@ -14,5 +14,4 @@ public class WordRequestModel {
         this.word = word;
     }
 
-
 }
