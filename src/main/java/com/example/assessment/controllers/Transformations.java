@@ -1,12 +1,12 @@
 package com.example.assessment.controllers;
 
+import com.example.assessment.models.ErrorResponse;
 import com.example.assessment.models.WordRequestModel;
 import com.example.assessment.services.StringReverseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +23,14 @@ public class Transformations {
 
     //Method 1: Receive word through Query Parameters:
     @GetMapping("/reverse")
-    public ResponseEntity<String> reverseGet(@RequestParam(name = "word", required = false) String input){
+    public ResponseEntity<?> reverseGet(@RequestParam(name = "word", required = false) String input){
         if (input == null ) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Query param 'word' not found. Check request url again");
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Query param 'word' not found. Check request url again");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
         if (input.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Word is empty. Please re check request url");
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Word is empty. Please re check request url");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
 
         String reversedWord = stringReverseService.reverseString(input);
@@ -37,9 +39,10 @@ public class Transformations {
 
     //Method 2: Receive word through Request body:
     @PostMapping("/reverse")
-    public ResponseEntity<String> reversePost(@Valid @RequestBody WordRequestModel request, BindingResult result){
+    public ResponseEntity<?> reversePost(@Valid @RequestBody WordRequestModel request, BindingResult result){
         if (result.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong: " + result.getFieldError().getDefaultMessage());
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid request body: " + result.getFieldError().getDefaultMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
         String input = request.getWord();
         String reversedWord = stringReverseService.reverseString(input);
@@ -47,13 +50,3 @@ public class Transformations {
     }
 }
 
-
-@RestControllerAdvice
-class GlobalExceptionHandler {
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid request body: " + ex.getMessage());
-    }
-}

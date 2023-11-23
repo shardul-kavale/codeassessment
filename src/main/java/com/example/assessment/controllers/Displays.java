@@ -1,5 +1,6 @@
 package com.example.assessment.controllers;
 
+import com.example.assessment.models.ErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,14 @@ public class Displays {
     }
 
     @GetMapping("/display")
-    public ResponseEntity<String> displayMessage(){
+    public ResponseEntity<?> displayMessage(){
 
         if (myMessage != null && !myMessage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(myMessage);
         } else {
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Sorry MY_MESSAGE env variable hasn't been set yet. Try again later");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Sorry MY_MESSAGE env variable hasn't been set yet. Try again later");
+                    .body(error);
         }
     }
 }
